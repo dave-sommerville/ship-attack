@@ -104,17 +104,23 @@ const var99 = select(".99");
 const submarine = new Ship();
 submarine.name = "Submarine";
 submarine.size = 3;
+submarine.boundary = 6;
 const battleship = new Ship();
 battleship.name = "Battleship";
 battleship.size = 4;
+battleship.boundary = 5;
 const carrier = new Ship();
 carrier.name = "Carrier";
 carrier.size = 5;
+carrier.boundary = 4;
 const cruiser = new Ship();
 cruiser.name = "Cruiser";
 cruiser.size = 3;
+cruiser.boundary = 6;
 const destroyer = new Ship();
 destroyer.name = "Destroyer";
 destroyer.size = 2;
-
+destroyer.boundary = 7;
 let isVertical = false;
+
+
