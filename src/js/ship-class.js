@@ -1,18 +1,23 @@
 'use strict';
 
 class Ship {
-  #y; // Initial Position
+  #name;
+  #y; 
   #x;
   #orientation;
   #size;
   #shipArr; // Array representing the ship's positions
 
-  constructor(y, x, orientation, size) {
+  constructor(name, y, x, orientation, size) {
+    this.name = name;
     this.y = y;
     this.x = x;
     this.orientation = orientation;
     this.size = size;
     this.#calculateShipArr(); 
+  }
+  set name(name) {
+    this.#name = name;
   }
   set y(y) {
     this.#y = y;
@@ -29,6 +34,9 @@ class Ship {
   set size(size) {
     this.#size = size;
     this.#calculateShipArr(); 
+  }
+  get name() {
+    return this.#name;
   }
 
   get y() {
@@ -60,7 +68,6 @@ class Ship {
   }
 }
 
-// Example Usage
 const myShip = new Ship(2, 3, 'horizontal', 4);
 console.log(myShip.shipArr); // Output: [[3, 2], [4, 2], [5, 2], [6, 2]]
 
