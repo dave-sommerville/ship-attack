@@ -124,3 +124,12 @@ destroyer.boundary = 7;
 let isVertical = false;
 
 
+/*
+      INTERFACE DESIGN  
+    - Five ship buttons after game reset 
+    - Button Listener adds certain ship to temperary variable 
+    - Also triggers vertical vs horizontal prompt
+    - Only x and y left to set
+    - All ship array areas need to change color (including with hover if possible)
+    - Limitations must be placed on clickable areas (Listeners can be turned off)
+*/

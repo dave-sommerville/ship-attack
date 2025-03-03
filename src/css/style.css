@@ -1,8 +1,8 @@
 @charset "utf-8";
 
-main {
-  width: 1000px;
-  height: 1000px;
+.game-grid {
+  width: 80svh;
+  height: 80svh;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
