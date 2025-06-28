@@ -7,9 +7,12 @@
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
   gap: 5px;
-    div {
-      width: 100%;
-      background-color: aqua;
-    }
-
+  
+}
+.grid-cell {
+  width: 100%;
+  background-color: aqua;
+}
+.grid-cell.occupied {
+  background-color: red;
 }
