@@ -127,11 +127,9 @@ class Ship {
 <-------------------------------------------------------------------------*/
 
 const gridSize = 10;
-const grid = select('.game-grid');
-const occupiedCells = new Set();
-let boatLength;
-let orientation;
-let isPlacingShips = true;
+const grid = select('.game-grid'); // This will shink and become a secondary screen for player. It will also have to show where the computer has hit during game play.
+// Gamplay grid will have to check players choice (the dataset of the grid) vs the computer player's occupiedCells
+
 let selectedShip = null;
 const carrier = new Ship("Carrier", "vertical", 5);
 const battleship = new Ship("Battleship", "vertical", 4);
@@ -146,7 +144,13 @@ const shipsByName = {
   submarine,
   destroyer
 };
-const placedShips = {};
+let isRunning = false; // Need to make a wrapper for all actions within this
+
+const placedShips = {}; // Will need to set a button to visible when this reaches limit
+const occupiedCells = new Set(); 
+const damagedShipCell = new Set();
+let isPlacingShips = true;
+
 
 const shipMenu = select('.ship-menu');
 
@@ -162,9 +166,10 @@ for(let row = 0; row < gridSize; row++) {
     });
   }
 }
+
 function tryPlaceShip(startRow, startCol, shipChoice) {
   if(!shipChoice) {
-    alert("You must choose a ship type.");
+    alert("You must choose a ship type."); // The alerts need to become error catches, especially because computer will use this function too
     return;
   }
   const shipName = shipChoice.name;
