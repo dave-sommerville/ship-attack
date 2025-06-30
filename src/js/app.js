@@ -66,7 +66,9 @@ let yesOrNo = Math.random() >= 0.5;
 
 //Random Hex color (needs fixing)
 let randColor = Math.floor(Math.random() * 0xffffff).toString(16);
-
+function getRandomNum(min, max) {
+  return Math.random() * (max - min) + min;
+}
 function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -119,7 +121,42 @@ class Ship {
   }
 }
 
-
+class Player {
+  #name;
+  #placedAllShips = false;
+  #occupiedCells = new Set();
+  #damagedShipCells = new Set();
+  constructor(name) {
+    this.name = name;
+  }
+  addCell(cell) {
+    this.#occupiedCells.add(cell);
+    if(this.#occupiedCells.length === 17) placedShips = true;
+  }
+  deleteCell(cell) {
+    this.#occupiedCells.delete(cell);
+    if(this.#occupiedCells.length < 17) placedShips = false;
+  }
+  hasCell(cell) {
+    return this.#occupiedCells.has(cell);
+  }
+  checkForHit(cell) {
+    if(this.#occupiedCells.has(cell)) this.#damagedShipCells.add(cell);
+    // Could check for win condition at this point
+  }
+  get name() {
+    return this.#name;
+  }
+  get placedAllShips() {
+    return this.#placedAllShips;
+  }
+  get occupiedCells() {
+    return this.#occupiedCells;
+  }
+  get damagedShipCells() {
+    return this.#damagedShipCells;
+  }
+}
 
 
 /*------------------------------------------------------------------------->
@@ -146,10 +183,7 @@ const shipsByName = {
 };
 let isRunning = false; // Need to make a wrapper for all actions within this
 
-const placedShips = {}; // Will need to set a button to visible when this reaches limit
-const occupiedCells = new Set(); 
-const damagedShipCell = new Set();
-let isPlacingShips = true;
+
 
 
 const shipMenu = select('.ship-menu');
@@ -164,6 +198,13 @@ for(let row = 0; row < gridSize; row++) {
     listen('click', cell, () => {
       tryPlaceShip(row, col, selectedShip);
     });
+  }
+}
+function computerShipPlacement() {
+  for (let i = 0; i < shipsByName.length; i++) {
+    let row = getRandomNum(0, gridSize);
+    let col = getRandomNum(0, gridSize);
+    tryPlaceShip(row, col, shipsByName[i]);
   }
 }
 
