@@ -121,6 +121,49 @@ class Ship {
   }
 }
 
+class Cell {
+  #row;
+  #col;
+  #key;
+  #element;
+
+  constructor(row, col, element) {
+    this.row = row;
+    this.col = col;
+    this.element = element;
+  }
+  set row(row) {
+    this.#row = row;
+  }
+  set col(col) {
+    this.#col = col;
+  }
+  set element(element) {
+    this.#element = element;
+  }
+
+  get row() {
+    return this.#row;
+  }
+  get col() {
+    return this.#col;
+  }
+  get element() {
+    return this.#element;
+  }
+get key() {
+  return `${this.#row},${this.#col}`;
+}
+
+  addClass(cls) {
+    this.#element.classList.add(cls);
+  }
+  removeClass(cls) {
+    this.#element.classList.remove(cls);
+  }
+}
+
+
 class Player {
   #name;
   #placedAllShips = false;
@@ -166,7 +209,8 @@ class Player {
 const gridSize = 10;
 const grid = select('.game-grid'); // This will shink and become a secondary screen for player. It will also have to show where the computer has hit during game play.
 // Gamplay grid will have to check players choice (the dataset of the grid) vs the computer player's occupiedCells
-
+let occupiedCells = new Set();
+const placedShips = {};
 let selectedShip = null;
 const carrier = new Ship("Carrier", "vertical", 5);
 const battleship = new Ship("Battleship", "vertical", 4);
@@ -188,18 +232,41 @@ let isRunning = false; // Need to make a wrapper for all actions within this
 
 const shipMenu = select('.ship-menu');
 
-for(let row = 0; row < gridSize; row++) {
-  for(let col = 0; col < gridSize; col++){
-    const cell = create('div');
-    addClass(cell, 'grid-cell');
-    cell.dataset.row = row;
-    cell.dataset.col = col;
-    grid.appendChild(cell);
-    listen('click', cell, () => {
-      tryPlaceShip(row, col, selectedShip);
-    });
+// for(let row = 0; row < gridSize; row++) {
+//   for(let col = 0; col < gridSize; col++){
+//     const cell = create('div');
+//     addClass(cell, 'grid-cell');
+//     cell.dataset.row = row;
+//     cell.dataset.col = col;
+//     grid.appendChild(cell);
+//     listen('click', cell, () => {
+//       tryPlaceShip(row, col, selectedShip);
+//     });
+//   }
+// }
+
+
+const allCells = {}; // Map from key ("row,col") to Cell instance
+
+function createGrid() {
+  for(let row = 0; row < gridSize; row++) {
+    for(let col = 0; col < gridSize; col++) {
+      const div = create('div');
+      addClass(div, 'grid-cell');
+      div.dataset.row = row;
+      div.dataset.col = col;
+
+      const cell = new Cell(row, col, div);
+      allCells[cell.key] = cell;
+
+      grid.appendChild(div);
+      listen('click', div, () => {
+        // Create switch function for intialization vs gameplay
+      });
+    }
   }
 }
+
 function computerShipPlacement() {
   for (let i = 0; i < shipsByName.length; i++) {
     let row = getRandomNum(0, gridSize);
@@ -231,21 +298,35 @@ function tryPlaceShip(startRow, startCol, shipChoice) {
   if(placedShips[shipName]) {
     placedShips[shipName].forEach(key => {
       occupiedCells.delete(key);
-      const [r,c] = key.split(',').map(Number);
-      const cell = select(`.grid-cell[data-row="${r}"][data-col="${c}"]`);
-      if(cell) removeClass(cell,'occupied');
+      const key = `${row},${col}`;
+      const cell = allCells[key];
+      if (cell) cell.addClass('occupied');
     });
   }
   positions.forEach((key) => {
     occupiedCells.add(key);
-    const [r, c] = key.split(',').map(Number);
-    const cell = select(`.grid-cell[data-row="${r}"][data-col="${c}"]`);
-    if(cell) {
-      addClass(cell, 'occupied');
-    }
-  });
+  const key = `${row},${col}`;
+  const cell = allCells[key];
+  if (cell) cell.addClass('occupied');
+    });
   placedShips[shipName] = positions;
 }
+
+function highlightPlayerCells(player) {
+  for (const key in allCells) {
+    const cell = allCells[key];
+    cell.removeClass('occupied');
+    cell.removeClass('damaged');
+
+    if (player.occupiedCells.has(key)) {
+      cell.addClass('occupied');
+    }
+    if (player.damagedCells.has(key)) {
+      cell.addClass('damaged');
+    }
+  }
+}
+
 
 listen('change', shipMenu, (e)=>{
   const selectedName = select('input[name="ship-select"]:checked')?.value;
