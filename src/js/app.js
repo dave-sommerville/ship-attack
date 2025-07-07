@@ -35,8 +35,8 @@ const placedShipObjs = {};
 let selectedShip = null;
 
 /*  -- Game States --  */
-const user = null;
-const computer = null;
+let user = null;
+let computer = null;
 createGrid();
 
 /*------------------------------------------------------------------------->
@@ -84,27 +84,42 @@ function createGrid() {
 
       grid.appendChild(div);
       listen('click', div, () => {
-      tryPlaceShip(row, col, selectedShip);
+        if (!user) {
+          tryPlaceShip(row, col, selectedShip);
+        } else {
+          takeTurn(allCells[`${row},${col}`]);
+        }
       });
     }
   }
 }
 
-function gamePlayInterface(row, col, selectedShip) {
-  if (user) {
-
+function interfaceSwitch(cell, row, col, selectedShip) {
+  if(!user) {
+    tryPlaceShip(row, col, selectedShip);
   } else {
-
+    takeTurn(cell);
   }
 }
+function takeTurn(cell) {
+  // User attacks computer
+  computer.attackResult(cell.key);
+  computer.displayComputerGrid(allCells);
+
+  // Computer randomly attacks user
+  const compTarget = user.getRandomUntriedCell(gridSize, allCells);
+  if (compTarget) {
+    user.attackResult(compTarget.key);
+    user.displayUserGrid(allCells);
+  }
+}
+
 function initializeGame() {
   user = new Player("User", placedShipCells);
-  computer = new Player("Computer", computerShipPlacement());
-}
-// Rename to random placement and add button to trigger this for player 
-function computerShipPlacement() {
-  let computerShips = new Set(); // Need to make 
-  return computerShips;
+  computer = new Player('Computer', new Set());
+  computer.randomlyPlaceShips(allCells, shipsByName, gridSize);
+
+
 }
 
 function tryPlaceShip(startRow, startCol, shipChoice) {

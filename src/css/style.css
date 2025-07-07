@@ -16,3 +16,9 @@
 .grid-cell.occupied {
   background-color: red;
 }
+.start-btn {
+  display: none;
+}
+.start-btn.visible {
+  display: block;
+}
