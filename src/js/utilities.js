@@ -4,15 +4,15 @@
   Utility Functions 
 <-------------------------------------------------------------------------*/
 
-function select(selector, scope = document) {
+export function select(selector, scope = document) {
   return scope.querySelector(selector);
 }
 
-function selectAll(selector, scope = document) {
+export function selectAll(selector, scope = document) {
   return scope.querySelectorAll(selector);
 }
 
-function listen(event, element, callback) {
+export function listen(event, element, callback) {
   return element.addEventListener(event, callback);
 }
 
@@ -24,12 +24,12 @@ function generateUniqueId() {
   return '#:' + Date.now();
 }
 
-function addClass(element, customClass) {
+export function addClass(element, customClass) {
   element.classList.add(customClass);
   return element;
 }
 
-function removeClass(element, customClass) {
+export function removeClass(element, customClass) {
   element.classList.remove(customClass);
   return element;
 }
@@ -52,7 +52,7 @@ function createImage(imageSrc) {
   return img;
 }
 
-function create(element) {
+export function create(element) {
   const newElement = document.createElement(element); 
   return newElement;
 }

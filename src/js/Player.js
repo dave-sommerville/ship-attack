@@ -1,6 +1,6 @@
 'use strict';
 
-class Player {
+export class Player {
   #name;
   #occupiedCells = new Set();
   #damagedShipCells = new Set();

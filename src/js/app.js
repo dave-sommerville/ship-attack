@@ -1,4 +1,8 @@
 'use strict';
+import {Cell} from"./Cell.js";
+import {Player} from "./Player.js";
+import {Ship} from "./Ship.js";
+import {select, selectAll, listen, addClass, removeClass, create} from "./utilities.js";
 /*------------------------------------------------------------------------->
   Main code 
 <-------------------------------------------------------------------------*/
@@ -49,7 +53,7 @@ listen('change', shipMenu, (e)=>{
     alert("No ship selected");
   }
 });
-listen('keydown', this, (e) => {
+listen('keydown', document, (e) => {
   if (e.key === 'r' || e.key === 'R') {
     console.log("Key pressed");
     if (selectedShip) {
@@ -147,29 +151,3 @@ function tryPlaceShip(startRow, startCol, shipChoice) {
   }
 }
 
-/*------------------------------------------------------------------------->
-  Main code 
-<-------------------------------------------------------------------------*/
-listen('change', shipMenu, (e)=>{
-  const selectedName = select('input[name="ship-select"]:checked')?.value;
-  if(selectedName && shipsByName[selectedName]) {
-    selectedShip = shipsByName[selectedName];
-    console.log("Selected Ship: ", selectedShip.name);
-  } else {
-    selectedShip = null;
-    alert("No ship selected");
-  }
-});
-listen('keydown', this, (e) => {
-  if (e.key === 'r' || e.key === 'R') {
-    console.log("Key pressed");
-    if (selectedShip) {
-      console.log("ship present");
-      if(selectedShip.orientation === 'horizontal') {
-        selectedShip.orientation = 'vertical';
-      } else if(selectedShip.orientation === 'vertical') {
-        selectedShip.orientation = 'horizontal';
-      }
-    }
-  }
-});

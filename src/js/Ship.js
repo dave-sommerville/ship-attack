@@ -1,7 +1,7 @@
 
 'use strict';
 
-class Ship {
+export class Ship {
   #name;
   #orientation;
   #size;

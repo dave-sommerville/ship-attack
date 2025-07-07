@@ -1,6 +1,6 @@
 'use strict';
 
-class Cell {
+export class Cell {
   #row;
   #col;
   #element;
