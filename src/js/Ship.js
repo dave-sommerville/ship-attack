@@ -1,3 +1,4 @@
+
 'use strict';
 
 class Ship {
@@ -31,5 +32,3 @@ class Ship {
     return this.#size;
   }
 }
-
-
