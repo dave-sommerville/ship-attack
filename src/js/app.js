@@ -10,7 +10,7 @@ const startButton = select('.start-btn');
 const gameGrid = select('.game-grid'); 
 const displayGrid = select('.display-grid');
 const shipMenu = select('.ship-menu');
-
+const textDisplay = select('h2');
 /*------------------------------------------------------------------------->
   Main code 
 <-------------------------------------------------------------------------*/
@@ -126,6 +126,13 @@ function takeTurn(cell) {
     user.attackResult(compTarget.key);
     user.displayUserGrid(allDisplayGridCells);
   }
+  if(computer.hasLost() && user.hasLost()) {
+    textDisplay.innerText = "It's a tie";
+  } else if (computer.hasLost()) {
+    textDisplay.innerText = "You win!";
+  } else if (user.hasLost()) {
+        textDisplay.innerText = "You lose!";
+  }
 }
 
 function initializeGame() {
@@ -170,14 +177,14 @@ function tryPlaceShip(startRow, startCol, shipChoice) {
   if (cell) cell.addClass('occupied');
     });
   placedShipObjs[shipName] = positions;
-  // if(Object.keys(placedShipObjs).length === Object.keys(shipsByName).length) {
-  //   if(!startButton.classList.contains('visible')) {
-      addClass(startButton, 'visible');
-  //   }
-  // } else {
-  //   if(startButton.classList.contains('visible') ) {
-  //     removeClass(startButton, 'visible');
-  //   }
-  // }
+  if(Object.keys(placedShipObjs).length === Object.keys(shipsByName).length) {
+  if(!startButton.classList.contains('visible')) {
+    addClass(startButton, 'visible');
+    }
+  } else {
+    if(startButton.classList.contains('visible') ) {
+      removeClass(startButton, 'visible');
+    }
+  }
 }
 

@@ -13,6 +13,12 @@ export class Player {
   get name() {
     return this.#name;
   }
+  get damagedShipCells() {
+    return this.#damagedShipCells;
+  }
+  get occupiedCells() {
+    return this.#occupiedCells;
+  }
 
 randomlyPlaceShips(shipsByName, gridSize) {
   const placed = {};
@@ -85,6 +91,7 @@ randomlyPlaceShips(shipsByName, gridSize) {
       const cell = fullGrid[key];
       cell.removeClass('damaged');
       cell.removeClass('miss');
+      cell.removeClass('occupied');
       if(this.#damagedShipCells.has(key)) {
         cell.addClass('damaged');
       }
@@ -102,6 +109,11 @@ randomlyPlaceShips(shipsByName, gridSize) {
       console.log(`Attack misses ${this.#name}'s ship.`);
     }
   }
+  hasLost() {
+  if (this.#occupiedCells.size === 0) return false; // safeguard if uninitialized
+  return [...this.#occupiedCells].every(cellKey => this.#damagedShipCells.has(cellKey));
+}
+
   getRandomUntriedCell(gridSize, allCells) {
   const tried = new Set([...this.#damagedShipCells, ...this.#missedShots]);
   const options = [];

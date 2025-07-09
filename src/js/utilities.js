@@ -30,8 +30,10 @@ export function addClass(element, customClass) {
 }
 
 export function removeClass(element, customClass) {
+  if (element.classList.contains(customClass)) {
   element.classList.remove(customClass);
   return element;
+  }
 }
 
 function sleep(duration) {
