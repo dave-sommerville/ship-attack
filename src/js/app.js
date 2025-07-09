@@ -35,6 +35,7 @@ const shipsByName = {
 let placedShipCells = new Set();
 const placedShipObjs = {};
 let selectedShip = null;
+const addedShips = [];
 
 /*  -- Game States --  */
 let user = null;
@@ -145,46 +146,67 @@ function initializeGame() {
 }
 
 function tryPlaceShip(startRow, startCol, shipChoice) {
-  if(!shipChoice) {
-    alert("You must choose a ship type."); 
+  if (!shipChoice) {
+    alert("You must choose a ship type.");
     return;
   }
-  const shipName = shipChoice.name;
+
+  const shipName = shipChoice.name.toLowerCase();
   const positions = [];
 
-  for(let i = 0; i < shipChoice.size; i++) {
+  for (let i = 0; i < shipChoice.size; i++) {
     let row = startRow;
     let col = startCol;
-    if(shipChoice.orientation === 'horizontal') col += i;
-    if(shipChoice.orientation === 'vertical') row += i;
-      const key = `${row},${col}`;
-    if(row >= gridSize ||  col >= gridSize || placedShipCells.has(key)) {
+    if (shipChoice.orientation === 'horizontal') col += i;
+    if (shipChoice.orientation === 'vertical') row += i;
+
+    const key = `${row},${col}`;
+    if (row >= gridSize || col >= gridSize || placedShipCells.has(key)) {
       alert('Cannot place boat here!');
       return;
     }
     positions.push(key);
   }
-  if(placedShipObjs[shipName]) {
+
+  // Clear previous position for same ship
+  if (placedShipObjs[shipName]) {
     placedShipObjs[shipName].forEach(key => {
       placedShipCells.delete(key);
       const cell = allGameGridCells[key];
       if (cell) cell.removeClass('occupied');
     });
   }
+
+  // Add to grid
   positions.forEach((key) => {
     placedShipCells.add(key);
-  const cell = allGameGridCells[key];
-  if (cell) cell.addClass('occupied');
-    });
+    const cell = allGameGridCells[key];
+    if (cell) cell.addClass('occupied');
+  });
+
   placedShipObjs[shipName] = positions;
-  if(Object.keys(placedShipObjs).length === Object.keys(shipsByName).length) {
-  if(!startButton.classList.contains('visible')) {
-    addClass(startButton, 'visible');
+
+  // === ✅ Add ship name to addedShips if not already there ===
+  if (!addedShips.includes(shipName)) {
+    addedShips.push(shipName);
+  }
+
+  // === ✅ Loop through radio buttons and update visual state ===
+  const shipRadios = document.querySelectorAll('input[name="ship-select"]');
+  shipRadios.forEach(input => {
+    const label = document.querySelector(`label[data-ship="${input.value}"]`);
+    if (label && addedShips.includes(input.value)) {
+      label.classList.add('placed');
+    }
+  });
+  // === ✅ Start button visibility ===
+  if (Object.keys(placedShipObjs).length === Object.keys(shipsByName).length) {
+    if (!startButton.classList.contains('visible')) {
+      addClass(startButton, 'visible');
     }
   } else {
-    if(startButton.classList.contains('visible') ) {
+    if (startButton.classList.contains('visible')) {
       removeClass(startButton, 'visible');
     }
   }
 }
-
