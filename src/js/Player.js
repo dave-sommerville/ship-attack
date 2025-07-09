@@ -1,5 +1,5 @@
 'use strict';
-
+import {Ship} from './Ship.js';
 export class Player {
   #name;
   #occupiedCells = new Set();
@@ -14,59 +14,54 @@ export class Player {
     return this.#name;
   }
 
-  randomlyPlaceShips(shipsByName, gridSize) {
+randomlyPlaceShips(shipsByName, gridSize) {
   const placed = {};
   const occupied = new Set();
   const orientations = ['horizontal', 'vertical'];
 
-  const shipArray = Object.values(shipsByName); // 🔑 FIX
-
-  for (let i = 0; i < shipArray.length; i++) {
-    const ship = shipArray[i];
+  for (const shipName in shipsByName) {
+    const template = shipsByName[shipName];
     let placedSuccessfully = false;
+    let attempts = 0;
 
-    while (!placedSuccessfully) {
+    while (!placedSuccessfully && attempts < 100) {
+      attempts++;
+
       const orientation = orientations[Math.floor(Math.random() * 2)];
-      ship.orientation = orientation;
-
-      let startRow = Math.floor(Math.random() * gridSize);
-      let startCol = Math.floor(Math.random() * gridSize);
+      const startRow = Math.floor(Math.random() * gridSize);
+      const startCol = Math.floor(Math.random() * gridSize);
 
       const positions = [];
 
-      for (let j = 0; j < ship.size; j++) { // Changed inner loop `i` to `j`
+      for (let i = 0; i < template.size; i++) {
         let row = startRow;
         let col = startCol;
-
-        if (orientation === 'horizontal') col += j;
-        if (orientation === 'vertical') row += j;
+        if (orientation === 'horizontal') col += i;
+        else row += i;
 
         const key = `${row},${col}`;
-
-        if (
-          row >= gridSize ||
-          col >= gridSize ||
-          occupied.has(key)
-        ) {
-          break;
+        if (row >= gridSize || col >= gridSize || occupied.has(key)) {
+          break; // fail and retry
         }
 
         positions.push(key);
       }
 
-      if (positions.length === ship.size) {
-        for (const key of positions) {
-          occupied.add(key);
-        }
-        placed[ship.name] = positions;
+      if (positions.length === template.size) {
+        positions.forEach(key => occupied.add(key));
+        placed[template.name] = positions;
         placedSuccessfully = true;
       }
+    }
+
+    if (!placedSuccessfully) {
+      console.error(`Failed to place ship: ${template.name}`);
+      throw new Error(`Failed to place ${template.name}`);
     }
   }
 
   this.#occupiedCells = occupied;
 }
-
 
   displayUserGrid(fullGrid) {
     for(const key in fullGrid) {

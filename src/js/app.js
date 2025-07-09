@@ -7,7 +7,8 @@ import {select, selectAll, listen, addClass, removeClass, create} from "./utilit
   Main code 
 <-------------------------------------------------------------------------*/
 const startButton = select('.start-btn');
-const grid = select('.game-grid'); 
+const gameGrid = select('.game-grid'); 
+const displayGrid = select('.display-grid');
 const shipMenu = select('.ship-menu');
 
 /*------------------------------------------------------------------------->
@@ -15,7 +16,8 @@ const shipMenu = select('.ship-menu');
 <-------------------------------------------------------------------------*/
 /*  -- Game Grid --  */
 const gridSize = 10;
-const allCells = {}; 
+const allGameGridCells = {}; 
+const allDisplayGridCells = {};
 /*  -- Ships --  */
 const carrier = new Ship("Carrier", "vertical", 5);
 const battleship = new Ship("Battleship", "vertical", 4);
@@ -37,8 +39,8 @@ let selectedShip = null;
 /*  -- Game States --  */
 let user = null;
 let computer = null;
-createGrid();
-
+createGameGrid();
+createDisplayGrid();
 /*------------------------------------------------------------------------->
   Listeners
 <-------------------------------------------------------------------------*/
@@ -73,7 +75,7 @@ listen('keydown', document, (e) => {
   Functions
 <-------------------------------------------------------------------------*/
 
-function createGrid() {
+function createGameGrid() {
   for(let row = 0; row < gridSize; row++) {
     for(let col = 0; col < gridSize; col++) {
       const div = create('div');
@@ -82,47 +84,57 @@ function createGrid() {
       div.dataset.col = col;
 
       const cell = new Cell(row, col, div);
-      allCells[cell.key] = cell;
+      allGameGridCells[cell.key] = cell;
 
-      grid.appendChild(div);
+      gameGrid.appendChild(div);
       listen('click', div, () => {
         if (!user) {
           tryPlaceShip(row, col, selectedShip);
         } else {
-          takeTurn(allCells[`${row},${col}`]);
+          takeTurn(allGameGridCells[`${row},${col}`]);
         }
       });
     }
   }
 }
 
-function interfaceSwitch(cell, row, col, selectedShip) {
-  if(!user) {
-    tryPlaceShip(row, col, selectedShip);
-  } else {
-    takeTurn(cell);
+function createDisplayGrid() {
+  for(let row = 0; row < gridSize; row++) {
+    for(let col = 0; col < gridSize; col++) {
+      const div = create('div');
+      addClass(div, 'grid-cell');
+      div.dataset.row = row;
+      div.dataset.col = col;
+
+      const cell = new Cell(row, col, div);
+      allDisplayGridCells[cell.key] = cell;
+
+      displayGrid.appendChild(div);
+    }
   }
 }
+
 function takeTurn(cell) {
   // User attacks computer
+  if (!user || !computer) return;
   computer.attackResult(cell.key);
-  computer.displayComputerGrid(allCells);
+  computer.displayComputerGrid(allGameGridCells);
 
   // Computer randomly attacks user
-  const compTarget = user.getRandomUntriedCell(gridSize, allCells);
+  const compTarget = user.getRandomUntriedCell(gridSize, allDisplayGridCells);
   if (compTarget) {
     user.attackResult(compTarget.key);
-    user.displayUserGrid(allCells);
+    user.displayUserGrid(allDisplayGridCells);
   }
 }
 
 function initializeGame() {
   user = new Player("User", placedShipCells);
-  user.displayUserGrid(allCells);
   computer = new Player('Computer', new Set());
-  computer.randomlyPlaceShips(allCells, shipsByName, gridSize);
-  
-
+  computer.randomlyPlaceShips(shipsByName, gridSize);
+  computer.displayComputerGrid(allGameGridCells); // <- computer's perspective shown on gameGrid
+  user.displayUserGrid(allDisplayGridCells);
+  selectedShip = null;
 }
 
 function tryPlaceShip(startRow, startCol, shipChoice) {
@@ -148,24 +160,24 @@ function tryPlaceShip(startRow, startCol, shipChoice) {
   if(placedShipObjs[shipName]) {
     placedShipObjs[shipName].forEach(key => {
       placedShipCells.delete(key);
-      const cell = allCells[key];
+      const cell = allGameGridCells[key];
       if (cell) cell.removeClass('occupied');
     });
   }
   positions.forEach((key) => {
     placedShipCells.add(key);
-  const cell = allCells[key];
+  const cell = allGameGridCells[key];
   if (cell) cell.addClass('occupied');
     });
   placedShipObjs[shipName] = positions;
-  if(placedShipObjs.length === shipsByName.length) {
-    if(!startButton.classList.contains('visible')) {
+  // if(Object.keys(placedShipObjs).length === Object.keys(shipsByName).length) {
+  //   if(!startButton.classList.contains('visible')) {
       addClass(startButton, 'visible');
-    }
-  } else {
-    if(startButton.classList.contains('visible') ) {
-      removeClass(startButton, 'visible');
-    }
-  }
+  //   }
+  // } else {
+  //   if(startButton.classList.contains('visible') ) {
+  //     removeClass(startButton, 'visible');
+  //   }
+  // }
 }
 

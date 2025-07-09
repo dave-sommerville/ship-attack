@@ -25,20 +25,26 @@ LATER ON
 */
 
 
-.game-grid {
+.game-grid, .display-grid {
   width: 80svh;
   height: 80svh;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
   gap: 5px;
-  
+  margin-bottom: 50px;
 }
 .grid-cell {
   width: 100%;
   background-color: aqua;
 }
 .grid-cell.occupied {
+  background-color: blue;
+}
+.grid-cell.miss {
+  background-color: #ddd;
+}
+.grid-cell.damaged {
   background-color: red;
 }
 .start-btn {
