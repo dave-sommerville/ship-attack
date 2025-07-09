@@ -1,4 +1,29 @@
 @charset "utf-8";
+/*
+OPENING
+- Game Opening prompts player 
+  - Disappears upon playing, maybe returns after a timer
+- When a ship name is selected, it highlights on the menu
+- All placed ships have a border on the  menu
+- Each ship should have an x to remove the ship from the board
+- Once all ships are placed, start button appears/enables
+- Main grid shrinks a little, secondary grid appears at bottom
+- Main grid displays computers info and has listeners to take shots
+GAMEPLAY
+- Descriptive text appears
+- When user clicks on cell, it bring up modal to confirm spot
+- Delay and effects
+- Computer attack algorithm needed
+- Show results to player
+- Prevent computer or player from guessing same spot twice
+- Watch for win/lose condition
+STYLING
+
+LATER ON
+- Add images at ship placement
+- Show ship imprint as a hover
+*/
+
 
 .game-grid {
   width: 80svh;

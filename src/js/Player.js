@@ -13,13 +13,16 @@ export class Player {
   get name() {
     return this.#name;
   }
-  randomlyPlaceShips(allCells, shipsByName, gridSize) {
+
+  randomlyPlaceShips(shipsByName, gridSize) {
   const placed = {};
   const occupied = new Set();
-
   const orientations = ['horizontal', 'vertical'];
 
-  for (const ship of shipsByName) {
+  const shipArray = Object.values(shipsByName); // 🔑 FIX
+
+  for (let i = 0; i < shipArray.length; i++) {
+    const ship = shipArray[i];
     let placedSuccessfully = false;
 
     while (!placedSuccessfully) {
@@ -31,12 +34,12 @@ export class Player {
 
       const positions = [];
 
-      for (let i = 0; i < ship.size; i++) {
+      for (let j = 0; j < ship.size; j++) { // Changed inner loop `i` to `j`
         let row = startRow;
         let col = startCol;
 
-        if (orientation === 'horizontal') col += i;
-        if (orientation === 'vertical') row += i;
+        if (orientation === 'horizontal') col += j;
+        if (orientation === 'vertical') row += j;
 
         const key = `${row},${col}`;
 
@@ -45,19 +48,15 @@ export class Player {
           col >= gridSize ||
           occupied.has(key)
         ) {
-          break; // Invalid position, try again
+          break;
         }
 
         positions.push(key);
       }
 
       if (positions.length === ship.size) {
-        // Valid placement
         for (const key of positions) {
           occupied.add(key);
-          if (allCells[key]) {
-            allCells[key].addClass('occupied');
-          }
         }
         placed[ship.name] = positions;
         placedSuccessfully = true;
@@ -67,6 +66,7 @@ export class Player {
 
   this.#occupiedCells = occupied;
 }
+
 
   displayUserGrid(fullGrid) {
     for(const key in fullGrid) {

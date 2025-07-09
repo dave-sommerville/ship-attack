@@ -42,7 +42,9 @@ createGrid();
 /*------------------------------------------------------------------------->
   Listeners
 <-------------------------------------------------------------------------*/
-
+listen('click', startButton, () =>{
+  initializeGame();
+});
 listen('change', shipMenu, (e)=>{
   const selectedName = select('input[name="ship-select"]:checked')?.value;
   if(selectedName && shipsByName[selectedName]) {
@@ -116,9 +118,10 @@ function takeTurn(cell) {
 
 function initializeGame() {
   user = new Player("User", placedShipCells);
+  user.displayUserGrid(allCells);
   computer = new Player('Computer', new Set());
   computer.randomlyPlaceShips(allCells, shipsByName, gridSize);
-
+  
 
 }
 
