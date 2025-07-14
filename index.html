@@ -18,29 +18,32 @@
   <link rel="stylesheet" href="./src/css/style.css" media="all">
   <script src="./src/js/app.js" type="module"></script>
 </head>
-<body class="container f-col">
-  <main>
-    <h2></h2>
-    <section class="game-grid">
+<body >
+  <main class="container f-col center">
+    <section class="game-grid"></section>
+    <section class="start-controls">
+      <form class="ship-menu" autocomplete="off">
+        <input type="radio" id="carrier" name="ship-select" value="carrier" hidden>
+          <label for="carrier" data-ship="carrier">Carrier</label>
+        <input type="radio" id="battleship" name="ship-select" value="battleship" hidden>
+          <label for="battleship" data-ship="battleship">Battleship</label>
+        <input type="radio" id="cruiser" name="ship-select" value="cruiser" hidden>
+          <label for="cruiser" data-ship="cruiser">Cruiser</label>
+        <input type="radio" id="submarine" name="ship-select" value="submarine" hidden>
+          <label for="submarine" data-ship="submarine">Submarine</label>        
+        <input type="radio" id="destroyer" name="ship-select" value="destroyer" hidden>
+          <label for="destroyer" data-ship="destroyer">Destroyer</label>
+        </form>
+        <button class="start-btn btn">START</button>
     </section>
-    <form class="ship-menu" autocomplete="off">
-      <input type="radio" id="carrier" name="ship-select" value="carrier" hidden>
-      <label for="carrier" data-ship="carrier">Carrier</label>
-
-      <input type="radio" id="battleship" name="ship-select" value="battleship" hidden>
-      <label for="battleship" data-ship="battleship">Battleship</label>
-
-      <input type="radio" id="cruiser" name="ship-select" value="cruiser" hidden>
-      <label for="cruiser" data-ship="cruiser">Cruiser</label>
-
-      <input type="radio" id="submarine" name="ship-select" value="submarine" hidden>
-      <label for="submarine" data-ship="submarine">Submarine</label>
-
-      <input type="radio" id="destroyer" name="ship-select" value="destroyer" hidden>
-      <label for="destroyer" data-ship="destroyer">Destroyer</label>
-    </form>
-    <button class="start-btn btn">Start Game</button>
-        <section class="display-grid"></section>
+    <section class="display-area">
+      <div class="description-area">
+        <p class="descriptive-text"></p>
+        <p class="descriptive-text-two"></p>
+        <button class="reset-btn btn hidden">RESTART</button>
+      </div>
+      <div class="display-grid hidden"></div>
+    </section>
   </main>
 </body>
 </html>

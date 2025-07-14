@@ -1,5 +1,6 @@
 'use strict';
 import {Ship} from './Ship.js';
+import {sleep} from './utilities.js';
 export class Player {
   #name;
   #occupiedCells = new Set();
@@ -100,13 +101,17 @@ randomlyPlaceShips(shipsByName, gridSize) {
       }
     }
   }
-  attackResult(cellKey) {
+  attackResult(cellKey, titleElement) {
     if (this.#occupiedCells.has(cellKey)) {
       this.#damagedShipCells.add(cellKey); 
-      console.log(`Attack hits ${this.#name}'s ship.`);
+      titleElement.textContent = `Attack hits ${this.#name}'s ship.`;
+        // sleep(1000);
+        // titleElement.textContent = '';
     } else {
       this.#missedShots.add(cellKey);
-      console.log(`Attack misses ${this.#name}'s ship.`);
+      titleElement.textContent = `Attack misses ${this.#name}'s ship.`;
+              // sleep(1000);
+        // titleElement.textContent = '';
     }
   }
   hasLost() {

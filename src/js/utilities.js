@@ -36,7 +36,7 @@ export function removeClass(element, customClass) {
   }
 }
 
-function sleep(duration) {
+export function sleep(duration) {
   return new Promise(resolve => {
     setTimeout(resolve, duration);
   });

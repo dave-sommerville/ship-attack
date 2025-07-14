@@ -1,25 +1,8 @@
 @charset "utf-8";
 /*
-OPENING
-- Game Opening prompts player 
-  - Disappears upon playing, maybe returns after a timer
-- All placed ships have a border on the  menu
-- Each ship should have an x to remove the ship from the board
-- Once all ships are placed, start button appears/enables
-- Main grid shrinks a little, secondary grid appears at bottom
 GAMEPLAY
-- Descriptive text appears
-- When user clicks on cell, it bring up modal to confirm spot
-- Delay and effects
-- Computer attack algorithm needed
-- Show results to player
-- Prevent computer or player from guessing same spot twice
-- Watch for win/lose condition
-STYLING
-- When a ship name is selected, it highlights on the menu
-
-LATER ON
-- Add images at ship placement
+- Cooler Style
+- Computer attack algorithm
 - Show ship imprint as a hover
 */
 
@@ -78,42 +61,81 @@ LATER ON
 .pointer {
   cursor: pointer;
 }
-
+.center {
+  align-items: center;
+  justify-content: center;
+}
 .m-auto {
   margin: auto;
 }
 body {
-  width: 100%;
-  align-items: center;
   background-color: var(--clr-bg);
 }
-.game-grid, .display-grid {
-  width: 80svw;
-  height: 80svw;
+main {
+  width: 100%;
+}
+h2 {
+  height: 100px;
+  color: #fefefe;
+  font-size: 2rem;
+}
+.game-grid {
+  width: 700px;
+  height: 700px;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
   gap: 5px;
   margin-bottom: 50px;
 }
+.game-grid.in-play {
+  width: 600px;
+  height: 600px;
+}
+
+.display-grid {
+  width: 400px;
+  height: 400px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 5px;
+}
+.display-grid.hidden {
+  display: none;
+}
+
 .grid-cell {
   width: 100%;
   background-color: aqua;
 }
+
 .grid-cell.occupied {
   background-color: blue;
 }
+
 .grid-cell.miss {
   background-color: #ddd;
 }
+
 .grid-cell.damaged {
   background-color: red;
 }
+
 .start-btn {
   display: none;
 }
+
 .start-btn.visible {
   display: block;
+}
+.start-controls {
+  height: 500px;
+  overflow-y: hidden;
+  transition: all 0.3s ease-in-out;
+}
+.start-controls.hidden {
+  height: 0;
 }
 
 .ship-menu {
@@ -128,18 +150,20 @@ body {
   justify-content: center;
 }
 
-.ship-menu label {
-  padding: 0.75rem 1.5rem;
+.ship-menu label, .btn {
+  padding: 0.5rem;
   border: 2px solid transparent;
   border-radius: 6px;
   background-color: #fff;
   cursor: pointer;
   font-weight: 600;
+  font-size: 1rem;
+  font-family: sans-serif;
   transition: all 0.2s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.ship-menu label:hover {
+.ship-menu label:hover, .btn:hover {
   background-color: #e6f0ff;
 }
 
@@ -148,28 +172,7 @@ body {
   background-color: #dceeff;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
 }
-.btn {
-  width: 100px;
-  height: 40px;
-  border-radius: var(--app-border-rad);
-  border: none;
-  margin-bottom: var(--app-spacing);
-  background-color: var(--clr-primary);
-  color: var(--clr-accent);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-.btn.secondary {
-  background-color: transparent;
-  border: solid 2px var(--clr-primary);
-  color: var(--clr-primary);
-  font-weight: 700;
-}
-.btn:hover {
-  box-shadow: 1px 1px 2px #fefefe49;
-  transform: translateY(-2px);
-}
+
 
 .ship-menu label.placed {
   background-color: #d1e7dd; /* soft green */
@@ -183,8 +186,34 @@ body {
   background-color: #d1e7dd;
 }
 
-@media(max-width:700px) {
-  .game-grid, .display-grid {
+.btn.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
 
+.description-area {
+  height: 200px;
+  width: 100%;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #fefefe;
+  line-height: 30px;
+}
+.display-area {
+  height: 600px;
+}
+
+@media(max-width:700px) {
+  .ship-menu label {
+    font-size: 0.8rem;
+  }
+  .game-grid {
+    width: 90svw;
+    height: 90svw;
+  }
+  .game-grid.in-play {
+    width: 80svw;
+    height: 80svw;
   }
 }

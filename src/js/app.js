@@ -2,15 +2,18 @@
 import {Cell} from"./Cell.js";
 import {Player} from "./Player.js";
 import {Ship} from "./Ship.js";
-import {select, selectAll, listen, addClass, removeClass, create} from "./utilities.js";
+import {select, selectAll, sleep, listen, addClass, removeClass, create} from "./utilities.js";
 /*------------------------------------------------------------------------->
-  Main code 
+  Elements
 <-------------------------------------------------------------------------*/
 const startButton = select('.start-btn');
 const gameGrid = select('.game-grid'); 
 const displayGrid = select('.display-grid');
+const startControls = select('.start-controls');
 const shipMenu = select('.ship-menu');
-const textDisplay = select('h2');
+const textDisplayOne = select('.descriptive-text');
+const textDisplayTwo = select('.descriptive-text-two');
+const resetButton = select('.reset-btn');
 /*------------------------------------------------------------------------->
   Main code 
 <-------------------------------------------------------------------------*/
@@ -33,9 +36,9 @@ const shipsByName = {
 };
 /*  -- Selection Menu --  */
 let placedShipCells = new Set();
-const placedShipObjs = {};
+let placedShipObjs = {};
 let selectedShip = null;
-const addedShips = [];
+let addedShips = [];
 
 /*  -- Game States --  */
 let user = null;
@@ -45,6 +48,16 @@ createDisplayGrid();
 /*------------------------------------------------------------------------->
   Listeners
 <-------------------------------------------------------------------------*/
+function resetGame() {
+  placedShipCells = new Set();
+  placedShipObjs = {};
+  selectedShip = null;
+  addedShips = [];
+  user = null;
+  computer = null;
+  displayGrid.innerHTML = '';
+  removeClass(startControls, 'hidden');
+}
 listen('click', startButton, () =>{
   initializeGame();
 });
@@ -71,7 +84,9 @@ listen('keydown', document, (e) => {
     }
   }
 });
-
+listen('click', resetButton, ()=> {
+  resetGame();
+});
 /*------------------------------------------------------------------------->
   Functions
 <-------------------------------------------------------------------------*/
@@ -118,31 +133,40 @@ function createDisplayGrid() {
 function takeTurn(cell) {
   // User attacks computer
   if (!user || !computer) return;
-  computer.attackResult(cell.key);
+  computer.attackResult(cell.key, textDisplayOne);
   computer.displayComputerGrid(allGameGridCells);
-
   // Computer randomly attacks user
   const compTarget = user.getRandomUntriedCell(gridSize, allDisplayGridCells);
   if (compTarget) {
-    user.attackResult(compTarget.key);
+    user.attackResult(compTarget.key, textDisplayTwo);
     user.displayUserGrid(allDisplayGridCells);
   }
   if(computer.hasLost() && user.hasLost()) {
-    textDisplay.innerText = "It's a tie";
+    textDisplayOne.innerText = "It's a tie";
+    textDisplayTwo.innerText = '';
+    removeClass(resetButton, 'hidden');
   } else if (computer.hasLost()) {
-    textDisplay.innerText = "You win!";
+    textDisplayOne.innerText = "You win!";
+    textDisplayTwo.innerText = '';
+    removeClass(resetButton, 'hidden');
   } else if (user.hasLost()) {
-        textDisplay.innerText = "You lose!";
+    textDisplayOne.innerText = "You lose!";
+    textDisplayTwo.innerText = '';
+    removeClass(resetButton, 'hidden');
   }
 }
 
 function initializeGame() {
+  removeClass(displayGrid, 'hidden');
+  addClass(startControls, 'hidden');
   user = new Player("User", placedShipCells);
   computer = new Player('Computer', new Set());
+  addClass(gameGrid, 'in-play');
   computer.randomlyPlaceShips(shipsByName, gridSize);
   computer.displayComputerGrid(allGameGridCells); // <- computer's perspective shown on gameGrid
   user.displayUserGrid(allDisplayGridCells);
   selectedShip = null;
+  addClass(resetButton, 'hidden');
 }
 
 function tryPlaceShip(startRow, startCol, shipChoice) {
