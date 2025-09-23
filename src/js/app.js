@@ -56,8 +56,14 @@ function resetGame() {
   user = null;
   computer = null;
   displayGrid.innerHTML = '';
+  gameGrid.innerHTML = '';
+  textDisplayOne.innerText = "";
   removeClass(startControls, 'hidden');
+  addClass(resetButton, 'hidden');
+  createGameGrid();
+  createDisplayGrid();
 }
+
 listen('click', startButton, () =>{
   initializeGame();
 });
