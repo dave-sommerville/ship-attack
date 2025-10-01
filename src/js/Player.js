@@ -6,6 +6,7 @@ export class Player {
   #occupiedCells = new Set();
   #damagedShipCells = new Set();
   #missedShots = new Set();
+  #computerData = [];
   constructor(name, occupiedCells) {
     this.#name = name;
     this.#occupiedCells = occupiedCells
@@ -20,7 +21,6 @@ export class Player {
   get occupiedCells() {
     return this.#occupiedCells;
   }
-
 randomlyPlaceShips(shipsByName, gridSize) {
   const placed = {};
   const occupied = new Set();
@@ -87,39 +87,37 @@ randomlyPlaceShips(shipsByName, gridSize) {
       }
     }
   }
-    displayComputerGrid(fullGrid) {
-    for(const key in fullGrid) {
-      const cell = fullGrid[key];
-      cell.removeClass('damaged');
-      cell.removeClass('miss');
-      cell.removeClass('occupied');
-      if(this.#damagedShipCells.has(key)) {
-        cell.addClass('damaged');
-      }
-      if(this.#missedShots.has(key)) {
-        cell.addClass('miss');
-      }
+displayComputerGrid(fullGrid) {
+  for(const key in fullGrid) {
+    const cell = fullGrid[key];
+    cell.removeClass('damaged');
+    cell.removeClass('miss');
+    cell.removeClass('occupied');
+    if(this.#damagedShipCells.has(key)) {
+      cell.addClass('damaged');
+    }
+    if(this.#missedShots.has(key)) {
+      cell.addClass('miss');
     }
   }
-  attackResult(cellKey, titleElement) {
-    if (this.#occupiedCells.has(cellKey)) {
-      this.#damagedShipCells.add(cellKey); 
-      titleElement.textContent = `Attack hits ${this.#name}'s ship.`;
-        // sleep(1000);
-        // titleElement.textContent = '';
-    } else {
-      this.#missedShots.add(cellKey);
-      titleElement.textContent = `Attack misses ${this.#name}'s ship.`;
-              // sleep(1000);
-        // titleElement.textContent = '';
-    }
+}
+attackResult(cellKey, titleElement) {
+  if (this.#occupiedCells.has(cellKey)) {
+    this.#damagedShipCells.add(cellKey); 
+    titleElement.textContent = `Attack hits ${this.#name}'s ship.`;
+    return true;
+  } else {
+    this.#missedShots.add(cellKey);
+    titleElement.textContent = `Attack misses ${this.#name}'s ship.`;
+    return false;
   }
-  hasLost() {
+}
+hasLost() {
   if (this.#occupiedCells.size === 0) return false; // safeguard if uninitialized
   return [...this.#occupiedCells].every(cellKey => this.#damagedShipCells.has(cellKey));
 }
 
-  getRandomUntriedCell(gridSize, allCells) {
+getRandomUntriedCell(gridSize, allCells) {
   const tried = new Set([...this.#damagedShipCells, ...this.#missedShots]);
   const options = [];
 

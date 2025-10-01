@@ -1,8 +1,9 @@
 'use strict';
-import {Cell} from"./Cell.js";
+import {Cell} from "./Cell.js";
 import {Player} from "./Player.js";
 import {Ship} from "./Ship.js";
 import {select, selectAll, sleep, listen, addClass, removeClass, create} from "./utilities.js";
+
 /*------------------------------------------------------------------------->
   Elements
 <-------------------------------------------------------------------------*/
@@ -14,26 +15,22 @@ const shipMenu = select('.ship-menu');
 const textDisplayOne = select('.descriptive-text');
 const textDisplayTwo = select('.descriptive-text-two');
 const resetButton = select('.reset-btn');
+
 /*------------------------------------------------------------------------->
   Main code 
 <-------------------------------------------------------------------------*/
-/*  -- Game Grid --  */
 const gridSize = 10;
 const allGameGridCells = {}; 
 const allDisplayGridCells = {};
+
 /*  -- Ships --  */
 const carrier = new Ship("Carrier", "vertical", 5);
 const battleship = new Ship("Battleship", "vertical", 4);
 const cruiser = new Ship("Cruiser", "vertical", 3);
 const submarine = new Ship("Submarine", "vertical", 3);
 const destroyer = new Ship("Destroyer", "vertical", 2);
-const shipsByName = {
-  carrier,
-  battleship,
-  cruiser,
-  submarine,
-  destroyer
-};
+const shipsByName = { carrier, battleship, cruiser, submarine, destroyer };
+
 /*  -- Selection Menu --  */
 let placedShipCells = new Set();
 let placedShipObjs = {};
@@ -43,8 +40,24 @@ let addedShips = [];
 /*  -- Game States --  */
 let user = null;
 let computer = null;
+
+/*  -- AI State -- */
+let huntMode = true;          // true = random searching, false = targeting
+let targetOrigin = null;      // first hit cell
+let lastHit = null;           // most recent hit cell
+let currentDirIndex = 0;      // index into cardinals
+let triedDirs = new Set();
+const cardinals = ['n', 'e', 's', 'w'];
+const deltas = {
+  n: [-1, 0],
+  e: [0, 1],
+  s: [1, 0],
+  w: [0, -1]
+};
+
 createGameGrid();
 createDisplayGrid();
+
 /*------------------------------------------------------------------------->
   Listeners
 <-------------------------------------------------------------------------*/
@@ -62,14 +75,19 @@ function resetGame() {
   addClass(resetButton, 'hidden');
   createGameGrid();
   createDisplayGrid();
+  // Reset AI state
+  huntMode = true;
+  targetOrigin = null;
+  lastHit = null;
+  triedDirs.clear();
+  currentDirIndex = 0;
 }
 
-listen('click', startButton, () =>{
-  initializeGame();
-});
-listen('change', shipMenu, (e)=>{
+listen('click', startButton, () => initializeGame());
+
+listen('change', shipMenu, () => {
   const selectedName = select('input[name="ship-select"]:checked')?.value;
-  if(selectedName && shipsByName[selectedName]) {
+  if (selectedName && shipsByName[selectedName]) {
     selectedShip = shipsByName[selectedName];
     console.log("Selected Ship: ", selectedShip.name);
   } else {
@@ -77,22 +95,16 @@ listen('change', shipMenu, (e)=>{
     alert("No ship selected");
   }
 });
+
 listen('keydown', document, (e) => {
-  if (e.key === 'r' || e.key === 'R') {
-    console.log("Key pressed");
-    if (selectedShip) {
-      console.log("ship present");
-      if(selectedShip.orientation === 'horizontal') {
-        selectedShip.orientation = 'vertical';
-      } else if(selectedShip.orientation === 'vertical') {
-        selectedShip.orientation = 'horizontal';
-      }
-    }
+  if ((e.key === 'r' || e.key === 'R') && selectedShip) {
+    selectedShip.orientation = 
+      selectedShip.orientation === 'horizontal' ? 'vertical' : 'horizontal';
   }
 });
-listen('click', resetButton, ()=> {
-  resetGame();
-});
+
+listen('click', resetButton, resetGame);
+
 /*------------------------------------------------------------------------->
   Functions
 <-------------------------------------------------------------------------*/
@@ -136,17 +148,86 @@ function createDisplayGrid() {
   }
 }
 
+/* ---- AI Helpers ---- */
+function getNeighbor(cell, dir, allCells) {
+  const [dr, dc] = deltas[dir];
+  const row = cell.row + dr;
+  const col = cell.col + dc;
+  return allCells[`${row},${col}`] || null;
+}
+
+function attackUser(cellKey) {
+  if (!cellKey) return false;
+  const hit = user.attackResult(cellKey, textDisplayTwo);
+  user.displayUserGrid(allDisplayGridCells);
+  return hit;
+}
+
+/* ---- Computer Turn ---- */
+function compTurn() {
+  if (huntMode) {
+    // random shot
+    const target = user.getRandomUntriedCell(gridSize, allDisplayGridCells);
+    if (!target) return;
+    if (attackUser(target.key)) {
+      huntMode = false;
+      targetOrigin = target;
+      lastHit = target;
+      triedDirs.clear();
+      currentDirIndex = 0;
+    }
+  } else {
+    // target mode
+    let dir = cardinals[currentDirIndex];
+
+    while (triedDirs.has(dir) && triedDirs.size < 4) {
+      currentDirIndex = (currentDirIndex + 1) % 4;
+      dir = cardinals[currentDirIndex];
+    }
+
+    const nextCell = getNeighbor(lastHit, dir, allDisplayGridCells);
+    if (!nextCell) {
+      triedDirs.add(dir);
+      currentDirIndex = (currentDirIndex + 1) % 4;
+      compTurn(); // retry in another direction
+      return;
+    }
+
+    const hit = attackUser(nextCell.key);
+    if (hit) {
+      lastHit = nextCell; // continue in this direction
+    } else {
+      triedDirs.add(dir);
+      lastHit = targetOrigin; // reset back to origin
+      currentDirIndex = (currentDirIndex + 1) % 4;
+
+      if (triedDirs.size >= 4) {
+        // no directions left → reset hunt mode
+        huntMode = true;
+        targetOrigin = null;
+        lastHit = null;
+      }
+    }
+  }
+}
+
+/* ---- Player Turn ---- */
 function takeTurn(cell) {
-  // User attacks computer
   if (!user || !computer) return;
+
+  // User attacks computer
   computer.attackResult(cell.key, textDisplayOne);
   computer.displayComputerGrid(allGameGridCells);
-  // Computer randomly attacks user
-  const compTarget = user.getRandomUntriedCell(gridSize, allDisplayGridCells);
-  if (compTarget) {
-    user.attackResult(compTarget.key, textDisplayTwo);
-    user.displayUserGrid(allDisplayGridCells);
-  }
+
+  checkEndCondition();
+  if (computer.hasLost()) return;
+
+  // Computer AI turn
+  compTurn();
+  checkEndCondition();
+}
+
+function checkEndCondition() {
   if(computer.hasLost() && user.hasLost()) {
     textDisplayOne.innerText = "It's a tie";
     textDisplayTwo.innerText = '';
@@ -169,7 +250,7 @@ function initializeGame() {
   computer = new Player('Computer', new Set());
   addClass(gameGrid, 'in-play');
   computer.randomlyPlaceShips(shipsByName, gridSize);
-  computer.displayComputerGrid(allGameGridCells); // <- computer's perspective shown on gameGrid
+  computer.displayComputerGrid(allGameGridCells);
   user.displayUserGrid(allDisplayGridCells);
   selectedShip = null;
   addClass(resetButton, 'hidden');
@@ -216,12 +297,12 @@ function tryPlaceShip(startRow, startCol, shipChoice) {
 
   placedShipObjs[shipName] = positions;
 
-  // === ✅ Add ship name to addedShips if not already there ===
+  // Add ship name to addedShips if not already there
   if (!addedShips.includes(shipName)) {
     addedShips.push(shipName);
   }
 
-  // === ✅ Loop through radio buttons and update visual state ===
+  // Update ship menu visuals
   const shipRadios = document.querySelectorAll('input[name="ship-select"]');
   shipRadios.forEach(input => {
     const label = document.querySelector(`label[data-ship="${input.value}"]`);
@@ -229,14 +310,11 @@ function tryPlaceShip(startRow, startCol, shipChoice) {
       label.classList.add('placed');
     }
   });
-  // === ✅ Start button visibility ===
+
+  // Show start button if all ships placed
   if (Object.keys(placedShipObjs).length === Object.keys(shipsByName).length) {
-    if (!startButton.classList.contains('visible')) {
-      addClass(startButton, 'visible');
-    }
+    addClass(startButton, 'visible');
   } else {
-    if (startButton.classList.contains('visible')) {
-      removeClass(startButton, 'visible');
-    }
+    removeClass(startButton, 'visible');
   }
 }
